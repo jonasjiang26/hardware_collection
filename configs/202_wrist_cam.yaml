@@ -1,0 +1,8 @@
+zlc_config_path: configs/zlc.yaml
+
+device_name: wrist_cam
+device_id: 1944301061BB782700
+camera_type: OAK_D_SR
+width: 512
+height: 512
+show_preview: False

@@ -1,0 +1,8 @@
+zlc_config_path: configs/zlc.yaml
+
+device_name: centric_cam
+device_id: 1844301051D9B50F00
+camera_type: OAK_D_LITE
+width: 512
+height: 512
+show_preview: False

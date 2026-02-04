@@ -1,1 +1,2 @@
-python -m hardware_collection.camera.camera_depthai --config ./configs/depthai.yaml
+
+python3 -m hardware_collection.camera.camera_depthai_centric --config ./configs/202_centric_cam.yaml

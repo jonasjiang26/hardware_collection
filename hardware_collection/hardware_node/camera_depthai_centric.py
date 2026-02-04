@@ -3,10 +3,11 @@ import os
 import time
 import depthai as dai  # pylint: disable=no-member
 import enum
+from sympy import true
 import yaml
 import argparse
 
-from .camera import AbstractCamera, CameraFrame
+from ..camera.camera import AbstractCamera, CameraFrame
 
 class DAICameraType(enum.Enum):
     OAK_D = 0
@@ -68,7 +69,7 @@ class DepthAICamera(AbstractCamera):
         cam_rgb.preview.link(xout_rgb.input)
 
         self.device = dai.Device(self.pipeline, dai.UsbSpeed.SUPER)
-        assert self.device.getUsbSpeed() == dai.UsbSpeed.SUPER, "DepthAI camera requires USB 3.0 connection."
+        # assert self.device.getUsbSpeed() == dai.UsbSpeed.SUPER, "DepthAI camera requires USB 3.0 connection."
         
         self.q_rgb = self.device.getOutputQueue(name="rgb", maxSize=4, blocking=False)
 
@@ -80,8 +81,9 @@ class DepthAICamera(AbstractCamera):
             CameraFrame: The sensor data.
         """
         raw_data = self.q_rgb.get().getRaw()
-        rgb_mat = raw_data.data.reshape((3, self.height, self.width))
-        rgb_mat = rgb_mat.transpose(1, 2, 0)  # HWC format
+        bgr_mat = raw_data.data.reshape((3, self.height, self.width))
+        bgr_mat = bgr_mat.transpose(1, 2, 0)  # HWC format
+        rgb_mat = bgr_mat[:, :, ::-1]  # BGR to RGB
         frame = CameraFrame(
             height=self.height,
             width=self.width,
@@ -109,8 +111,9 @@ if __name__ == "__main__":
         config = yaml.load(f, Loader=yaml.SafeLoader)
     try:
         depthai_camera = DepthAICamera(
-            config["device_name"],
+            name=config["device_name"],
             device_id=config["device_id"],
+            camera_type=DAICameraType[config.get("camera_type")],
             width=config["width"],
             height=config["height"]
         )

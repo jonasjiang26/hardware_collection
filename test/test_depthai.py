@@ -1,7 +1,7 @@
 import pyzlc
 import cv2
 import time
-from hardware_collection.camera.camera_depthai import DepthAICamera
+from hardware_collection.camera.camera_depthai_wrist import DepthAICamera
 
 if __name__ == "__main__":
     pyzlc.init("test_depthai_camera", "192.168.0.134")

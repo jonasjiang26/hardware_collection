@@ -1,2 +1,4 @@
-group_name: hardware_collection
-local_ip: 192.168.0.134
+group: 224.0.0.1
+group_name: robot_lab_201_202
+local_ip: 141.3.53.25
+group_port: 7728
