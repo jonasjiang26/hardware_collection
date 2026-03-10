@@ -13,7 +13,8 @@ dependencies = [
     "numpy>=1.21.0",        # For numerical computations
     "keyboard>=0.13.5",     # For handling keyboard input
     "depthai>=2.20.0",      # For DepthAI camera support
-    "pyzlc"
+    "pyzlc",
+    "colorama>=0.4.6"
 ]
 
 [build-system]

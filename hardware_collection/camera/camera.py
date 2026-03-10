@@ -68,7 +68,8 @@ class AbstractCamera(AbstractHardware):
         rgb_array = np.frombuffer(frame["rgb_data"], dtype=np.uint8).reshape(
             (frame["height"], frame["width"], frame["channels"])
         )
-        cv2.imshow(f"{self.device_name} Preview", rgb_array)
+        bgr_array = rgb_array[:, :, ::-1]
+        cv2.imshow(f"{self.device_name} Preview", bgr_array)
         cv2.waitKey(1)
 
     # TODO: implement depth preview

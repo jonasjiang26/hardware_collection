@@ -3,11 +3,10 @@ import os
 import time
 import depthai as dai  # pylint: disable=no-member
 import enum
-from sympy import true
 import yaml
 import argparse
 
-from .camera import AbstractCamera, CameraFrame
+from ..camera import AbstractCamera, CameraFrame
 
 class DAICameraType(enum.Enum):
     OAK_D = 0

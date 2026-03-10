@@ -1,0 +1,1 @@
+python3 -m hardware_collection.hardware_node.camera_depthai_centric --config /home/multimodallearning/hardware_collection/configs/202_wrist_cam.yaml
