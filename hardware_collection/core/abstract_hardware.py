@@ -1,7 +1,24 @@
 import abc
-import pyzlc
 import yaml
 import os
+import warnings
+
+
+class _NullPublisher:
+    def __init__(self, topic: str):
+        self.topic = topic
+
+    def publish(self, _message) -> None:
+        return
+
+
+def _import_pyzlc():
+    try:
+        import pyzlc  # type: ignore
+
+        return pyzlc, None
+    except Exception as exc:  # pragma: no cover - import-time env dependent
+        return None, exc
 
 class AbstractHardware:
     """Abstract base class for hardware components using ZeroLanCom Publisher."""
@@ -14,6 +31,18 @@ class AbstractHardware:
             config_path (str): Path to the ZeroLanCom configuration file.
         """
         self.device_name = device_name
+
+        pyzlc, import_error = _import_pyzlc()
+        if pyzlc is None:
+            warnings.warn(
+                "ZeroLanCom publishing is disabled because `pyzlc` could not be imported "
+                f"({import_error!r}). Install/repair `pyzlc` to enable publishing.",
+                RuntimeWarning,
+            )
+            self.config = {}
+            self.publisher = _NullPublisher(self.device_name)
+            return
+
         print(f"Loading ZLC config from: {os.path.join(os.getcwd(), config_path)}")
         with open(os.path.join(os.getcwd(), config_path), 'r') as f:
             self.config = yaml.load(f, Loader=yaml.SafeLoader)

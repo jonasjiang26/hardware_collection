@@ -1,10 +1,14 @@
 from __future__ import annotations
 import abc
 from typing import TypedDict, Optional
-import cv2
 import numpy as np
 
 from ..core.abstract_hardware import AbstractHardware
+
+try:
+    import cv2  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    cv2 = None
 
 class CameraFrame(TypedDict):
     timestamp: float
@@ -65,6 +69,11 @@ class AbstractCamera(AbstractHardware):
         Args:
             frame (CameraFrame): The captured image frame.
         """
+        if cv2 is None:
+            raise RuntimeError(
+                "OpenCV (cv2) is not installed. Install `opencv-python` (or `opencv-python-headless`) "
+                "or set `show_preview: False` in the camera config."
+            )
         rgb_array = np.frombuffer(frame["rgb_data"], dtype=np.uint8).reshape(
             (frame["height"], frame["width"], frame["channels"])
         )

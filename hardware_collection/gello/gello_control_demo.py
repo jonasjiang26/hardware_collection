@@ -3,7 +3,10 @@ import os
 import time
 
 import numpy as np
-import pyzlc
+try:
+    import pyzlc  # type: ignore
+except Exception:  # pragma: no cover - import-time env dependent
+    pyzlc = None
 
 # Add hardware directory to path to import GelloAgent
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -18,6 +21,11 @@ from franka_control_client.franka_robot.franka_gripper import (
 )
 
 if __name__ == "__main__":
+    if pyzlc is None:
+        raise RuntimeError(
+            "`pyzlc` could not be imported; ZeroLanCom publishing is unavailable. "
+            "Install/repair `pyzlc` to run this demo."
+        )
     # Initialize Gello agent
     gello_port = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT94EVRT-if00-port0"
     gello = GelloAgent(port=gello_port)

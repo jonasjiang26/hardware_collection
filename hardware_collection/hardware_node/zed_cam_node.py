@@ -14,7 +14,10 @@ from typing import Any, Dict
 import yaml
 
 from hardware_collection.camera.camera_zed_sdk import ZED as ZEDCamera
-import pyzlc
+try:
+    import pyzlc  # type: ignore
+except Exception:  # pragma: no cover - import-time env dependent
+    pyzlc = None
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +72,11 @@ def resolve_config(args: argparse.Namespace) -> Dict[str, Any]:
 def _Connect_cam():
     args = parse_args()
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
+    if pyzlc is None:
+        raise RuntimeError(
+            "`pyzlc` could not be imported; ZeroLanCom publishing is unavailable. "
+            "Install/repair `pyzlc` to run this node."
+        )
 
     # Load the camera configuration from the YAML file
     camera_config = load_config(args.config)

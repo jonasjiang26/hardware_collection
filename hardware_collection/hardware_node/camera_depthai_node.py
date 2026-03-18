@@ -23,7 +23,7 @@ class DepthAICamera(AbstractCamera):
         device_id: str,
         height: int = 640,
         width: int = 480,
-        camera_type: DAICameraType = DAICameraType.OAK_D_SR,
+        camera_type: DAICameraType = DAICameraType.OAK_D_LITE,
         zlc_config: str = "configs/zlc.yaml"
     ):
         self.camera_type = camera_type
@@ -80,8 +80,9 @@ class DepthAICamera(AbstractCamera):
             CameraFrame: The sensor data.
         """
         raw_data = self.q_rgb.get().getRaw()
-        rgb_mat = raw_data.data.reshape((3, self.height, self.width))
-        rgb_mat = rgb_mat.transpose(1, 2, 0)  # HWC format
+        bgr_mat = raw_data.data.reshape((3, self.height, self.width))
+        bgr_mat = bgr_mat.transpose(1, 2, 0)  # HWC format
+        rgb_mat = bgr_mat[:, :, ::-1]  # BGR to RGB
         frame = CameraFrame(
             height=self.height,
             width=self.width,
@@ -95,9 +96,19 @@ class DepthAICamera(AbstractCamera):
 
     @staticmethod
     def get_devices() -> None:
+        def _device_id(device_info: object) -> str:
+            # DepthAI's DeviceInfo API differs across versions.
+            if hasattr(device_info, "getMxId"):
+                return str(device_info.getMxId())  # type: ignore[attr-defined]
+            if hasattr(device_info, "getDeviceId"):
+                return str(device_info.getDeviceId())  # type: ignore[attr-defined]
+            if hasattr(device_info, "deviceId"):
+                return str(getattr(device_info, "deviceId"))
+            return str(device_info)
+
         cam_list = dai.Device.getAllAvailableDevices()
         for device in cam_list:
-            print(f"Found DepthAI camera: {device.getMxId()}")
+            print(f"Found DepthAI camera: {_device_id(device)}")
 
 
 if __name__ == "__main__":
@@ -109,8 +120,9 @@ if __name__ == "__main__":
         config = yaml.load(f, Loader=yaml.SafeLoader)
     try:
         depthai_camera = DepthAICamera(
-            config["device_name"],
+            name=config["device_name"],
             device_id=config["device_id"],
+            camera_type=DAICameraType[config.get("camera_type")],
             width=config["width"],
             height=config["height"]
         )
